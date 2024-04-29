@@ -8,17 +8,11 @@ const validateRegisterUser = (req, _ , next) => {
         password: joi.string().required().disallow(""),
         role: joi.string().valid("ADMIN", "USER").default("USER")
     })
-
-    console.log(req.body);
-
     if (!req.body || typeof req.body !== 'object') {
         return next(createError(400, 'Invalid request body'));
     }
-
     const { error, value } = validationSchema.validate(req.body)
     if (error) {
-        console.log(req.body);
-
         return next(createError(422, error.message))
     }
     next()
