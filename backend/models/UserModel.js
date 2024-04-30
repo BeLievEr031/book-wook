@@ -53,6 +53,10 @@ const userSchema = new mongoose.Schema({
     isVerified: {
         type: Boolean,
         default: false
+    },
+    addresses: {
+        type: Number,
+        default: 3
     }
 }, {
     timestamps: true
