@@ -1,7 +1,4 @@
 const verificationTemplete = (token) => {
-
-    console.log(token);
-
     const subject = "Please Verify Your Email Address - Action Required"
     const html = `<!DOCTYPE html>
     <html lang="en">

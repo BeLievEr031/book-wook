@@ -16,7 +16,6 @@ const register = asyncHandler(async (req, res, next) => {
     const user = await UserModel.create({ ...req.body, verifyToken: verificationToken })
     const template = verificationTemplete(verificationToken)
     const data = await sendEmailWithResend(template, req.body.email)
-    console.log(data);
     res.status(200).json(new ApiResponse(true, "User registered and verification token send on email.", user))
 })
 
@@ -57,9 +56,7 @@ const verifyAccount = asyncHandler(async (req, res, next) => {
     if (!token) {
         return next(createError(401, "Invalid token"));
     }
-    console.log(token);
     const user = await UserModel.findOne({ verifyToken: token })
-    console.log(user);
     if (!user) {
         return next(createError(401, "Invalid tokxxfsen"));
     }
