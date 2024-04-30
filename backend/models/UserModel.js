@@ -50,6 +50,10 @@ const userSchema = new mongoose.Schema({
     accessToken: {
         type: String,
         default: ""
+    },
+    isVerified: {
+        type: Boolean,
+        default: false
     }
 }, {
     timestamps: true
