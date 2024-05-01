@@ -4,7 +4,6 @@ import UserModel from "../models/UserModel.js";
 import asyncHandler from "express-async-handler";
 const admin = asyncHandler(async (req, res, next) => {
     const { accessToken } = req.cookies || req.headers["authorization"].split("Bearer")[1];
-    console.log(req.cookies);
     if (!accessToken) {
         return next(createError(400, "Token required."))
     }
@@ -18,7 +17,6 @@ const admin = asyncHandler(async (req, res, next) => {
     if (isExpired) {
         return next(createError(401, "Token expired."))
     }
-    console.log(isValidToken);
     const user = await UserModel.findOne({ $and: [{ email: isValidToken.email }, { accessToken }] })
     if (!user) {
         return next(createError(401, "Unauthorized aa user."))

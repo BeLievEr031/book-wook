@@ -72,7 +72,6 @@ const verifyAccount = asyncHandler(async (req, res, next) => {
 })
 
 const refreshToken = asyncHandler(async (req, res, next) => {
-    // console.log(req.cookies);
     const { refreshToken } = req.cookies || req.headers["authorization:"].split("Bearer")[1]
     if (!refreshToken) {
         return next(createError(422, "Token required!"))
@@ -93,8 +92,6 @@ const refreshToken = asyncHandler(async (req, res, next) => {
         return next(createError(409, "Invalid user."))
     }
 
-    console.log(isUser);
-
     const payload = {
         _id: isUser._id,
         email: isUser.email,
@@ -102,7 +99,6 @@ const refreshToken = asyncHandler(async (req, res, next) => {
     }
 
     const tokens = createTokens(payload)
-    console.log(tokens);
     isUser.accessToken = tokens.accessToken;
     isUser.refreshToken = tokens.refreshToken;
     await isUser.save();
@@ -128,7 +124,9 @@ const fetchUser = asyncHandler(async (req, res, next) => {
         { $sort: { [sortBy]: sortOrder === 'asc' ? 1 : -1 } },
         // Pagination stage
         { $skip: skip },
-        { $limit: limit }
+        { $limit: limit },
+        // Projection stage to filter only 'name' and 'email' fields
+        { $project: { _id: 1, name: 1, email: 1, role: 1 } }
     ];
 
     // Execute the aggregation pipeline

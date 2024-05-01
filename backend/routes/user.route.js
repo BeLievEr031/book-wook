@@ -16,6 +16,8 @@ userRouter.route("/refresh-token").post(refreshToken)
 
 // User management routes.
 userRouter.route("/").get(validateReqQuery, admin, fetchUser)
+userRouter.route("/:id").put(admin)
+
 
 
 
