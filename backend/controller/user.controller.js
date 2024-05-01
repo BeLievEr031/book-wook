@@ -154,7 +154,6 @@ const deleteUser = asyncHandler(async (req, res, next) => {
     if (!user) {
         return next(createError(404, "Invalid user!!"))
     }
-
     res.status(200).json(new ApiResponse(true, "User deleted successfully.", user))
 })
 
