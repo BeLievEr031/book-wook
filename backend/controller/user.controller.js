@@ -2,7 +2,7 @@ import asyncHandler from "express-async-handler"
 import UserModel from "../models/UserModel.js"
 import createError from "http-errors"
 import ApiResponse from "../utils/ApiResponse.js"
-import { comparePassword, createTokens, generateVerificationToken } from "../utils/utils.js"
+import { checkTokenExpiry, comparePassword, createTokens, generateVerificationToken, verifyRefreshToken } from "../utils/utils.js"
 import { verificationTemplete } from "../constant/emailTemplate.js"
 import { sendEmailWithResend } from "../utils/email.utility.js"
 
@@ -38,6 +38,9 @@ const login = asyncHandler(async (req, res, next) => {
     }
 
     const { accessToken, refreshToken } = createTokens(payload)
+    isUser.accessToken = accessToken;
+    isUser.refreshToken = refreshToken;
+    await isUser.save();
 
     res.status(200)
         .cookie("accessToken", accessToken, {
@@ -68,4 +71,40 @@ const verifyAccount = asyncHandler(async (req, res, next) => {
 
 })
 
-export { register, login, verifyAccount };
+const refreshToken = asyncHandler(async (req, res, next) => {
+    const { refreshToken  } = req.cookies || req.headers["authorization:"].split("Bearer")[1]
+    if (!refreshToken) {
+        return next(createError(422, "Token required!"))
+    }
+    const isValid = await verifyRefreshToken(refreshToken);
+    if (!isValid) {
+        return next(createError(409, "Invalid token."))
+    }
+
+    const isExpire = checkTokenExpiry(isValid.exp)
+    if (isExpire) {
+        return res.status(401).json(new ApiResponse(false, "Token is expired.", null))
+    }
+
+    const isUser = await UserModel.findOne({ $and: [{ email: isValid.email }, { refreshToken }] });
+    if (!isUser) {
+        return next(createError(409, "Invalid user."))
+    }
+
+    const payload = {
+        _id: isUser._id,
+        email: isUser.email,
+        name: isUser.name
+    }
+
+    const tokens = createTokens(payload)
+    isUser.accessToken = tokens.accessToken;
+    isUser.refreshToken = tokens.refreshToken;
+    await isUser.save();
+
+    res.status(200).json(new ApiResponse(true, "Token refreshed!!", null))
+})
+export { register, login, verifyAccount, refreshToken };
+
+
+// 9321590557 rupesh sir
