@@ -72,7 +72,8 @@ const verifyAccount = asyncHandler(async (req, res, next) => {
 })
 
 const refreshToken = asyncHandler(async (req, res, next) => {
-    const { refreshToken  } = req.cookies || req.headers["authorization:"].split("Bearer")[1]
+    // console.log(req.cookies);
+    const { refreshToken } = req.cookies || req.headers["authorization:"].split("Bearer")[1]
     if (!refreshToken) {
         return next(createError(422, "Token required!"))
     }
@@ -81,6 +82,7 @@ const refreshToken = asyncHandler(async (req, res, next) => {
         return next(createError(409, "Invalid token."))
     }
 
+    // TODO: Testing for expired token.
     const isExpire = checkTokenExpiry(isValid.exp)
     if (isExpire) {
         return res.status(401).json(new ApiResponse(false, "Token is expired.", null))
@@ -91,6 +93,8 @@ const refreshToken = asyncHandler(async (req, res, next) => {
         return next(createError(409, "Invalid user."))
     }
 
+    console.log(isUser);
+
     const payload = {
         _id: isUser._id,
         email: isUser.email,
@@ -98,13 +102,41 @@ const refreshToken = asyncHandler(async (req, res, next) => {
     }
 
     const tokens = createTokens(payload)
+    console.log(tokens);
     isUser.accessToken = tokens.accessToken;
     isUser.refreshToken = tokens.refreshToken;
     await isUser.save();
 
-    res.status(200).json(new ApiResponse(true, "Token refreshed!!", null))
+    res.status(200)
+        .cookie("accessToken", tokens.accessToken, {
+            maxAge: 8 * 60 * 60 * 1000, // 8 hours in milliseconds
+            httpOnly: true
+        })
+        .cookie("refreshToken", tokens.refreshToken, {
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
+            httpOnly: true
+        })
+        .json(new ApiResponse(true, "Token refreshed!!", null))
 })
-export { register, login, verifyAccount, refreshToken };
+
+const fetchUser = asyncHandler(async (req, res, next) => {
+    const { page, limit, sortBy, sortOrder } = req.query;
+    const skip = (page - 1) * limit;
+    // Construct the aggregation pipeline
+    const pipeline = [
+        // Sorting stage
+        { $sort: { [sortBy]: sortOrder === 'asc' ? 1 : -1 } },
+        // Pagination stage
+        { $skip: skip },
+        { $limit: limit }
+    ];
+
+    // Execute the aggregation pipeline
+    const users = await UserModel.aggregate(pipeline);
+    res.status(200).json(new ApiResponse(true, "User fetched successfully.", users))
+})
+
+export { register, login, verifyAccount, refreshToken, fetchUser };
 
 
 // 9321590557 rupesh sir
