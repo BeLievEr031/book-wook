@@ -53,9 +53,9 @@ const validateReqQuery = (req, _, next) => {
 
 const validateUpdateUser = (req, _, next) => {
     const validationSchema = joi.object({
-        name: joi.string().trim().disallow(""),
-        email: joi.string().email().disallow(""),
-        role: joi.string().valid("ADMIN","USER").disallow(""),
+        name: joi.string().required().trim().disallow(""),
+        email: joi.string().required().email().disallow(""),
+        role: joi.string().required().valid("ADMIN", "USER").default("USER").disallow(""),
         isVerified: joi.boolean(),
     })
 
@@ -68,4 +68,63 @@ const validateUpdateUser = (req, _, next) => {
     }
     next()
 }
-export { validateRegisterUser, validateLoginUser, validateReqQuery,validateUpdateUser };
+
+
+const validateAddBook = (req, _, next) => {
+    const validationSchema = joi.object({
+        genreid: joi.string().required().trim(),
+        title: joi.string().required().trim(),
+        author: joi.string().required().trim(),
+        description: joi.string().required().trim(),
+        price: joi.number().default(0),
+        isForSale: joi.boolean().default(false),
+        isForRent: joi.boolean().default(false),
+        rentalPrice: joi.number().default(0),
+        rating: joi.number().min(1).max(5).default(0),
+        thumbnail: joi.string().default(''),
+        photos: joi.array().items(joi.string()).default([]),
+        pdf: joi.string().default('').required(),
+        quantity: joi.number().default(0),
+        isActive: joi.boolean().default(false)
+    });
+
+    if (!req.body || typeof req.body !== 'object') {
+        return next(createError(400, 'Invalid request body'));
+    }
+    const { error, value } = validationSchema.validate(req.body)
+    if (error) {
+        return next(createError(422, error.message))
+    }
+    req.book = value;
+    next()
+}
+
+const validateUpdateBook = (req, _, next) => {
+    const validationSchema = joi.object({
+        genreid: joi.string().required().trim(),
+        title: joi.string().required().trim(),
+        author: joi.string().required().trim(),
+        description: joi.string().required().trim(),
+        price: joi.number().default(0),
+        isForSale: joi.boolean().default(false),
+        isForRent: joi.boolean().default(false),
+        rentalPrice: joi.number().default(0),
+        rating: joi.number().min(1).max(5).default(0),
+        thumbnail: joi.string().default(''),
+        photos: joi.array().items(joi.string()).default([]),
+        pdf: joi.string().default('').required(),
+        quantity: joi.number().default(0),
+        isActive: joi.boolean().default(false)
+    });
+
+    if (!req.body || typeof req.body !== 'object') {
+        return next(createError(400, 'Invalid request body'));
+    }
+    const { error, value } = validationSchema.validate(req.body)
+    if (error) {
+        return next(createError(422, error.message))
+    }
+    req.book = value;
+    next()
+}
+export { validateRegisterUser, validateLoginUser, validateReqQuery, validateUpdateUser, validateAddBook, validateUpdateBook };

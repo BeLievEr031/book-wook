@@ -1,10 +1,15 @@
-import { types } from "joi";
 import mongoose from "mongoose";
 
 const bookSchema = new mongoose.Schema({
+    userid: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "UserModel",
+        required: [true, "Admin id Required."]
+    },
     genreid: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "GenreModel"
+        ref: "GenreModel",
+        required: [true, "Book Genre Required."]
     },
     title: {
         type: String,
@@ -64,7 +69,7 @@ const bookSchema = new mongoose.Schema({
         default: 0
     },
     isActive: {
-        types: Boolean,
+        type: Boolean,
         default: false
     }
 }, {
@@ -72,6 +77,6 @@ const bookSchema = new mongoose.Schema({
 });
 
 // Compile Book model from schema
-const BookModel = mongoose.model('Book', bookSchema);
+const BookModel = mongoose.model('BookModel', bookSchema);
 
 export default BookModel;
