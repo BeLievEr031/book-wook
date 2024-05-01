@@ -51,12 +51,14 @@ const validateReqQuery = (req, _, next) => {
     next()
 }
 
-const validateUpdateUser = (req, _, res) => {
+const validateUpdateUser = (req, _, next) => {
     const validationSchema = joi.object({
-        name: joi.string().required().trim().disallow(""),
-        email: joi.string().email().required(),
-        password: joi.string().required().disallow(""),
+        name: joi.string().trim().disallow(""),
+        email: joi.string().email().disallow(""),
+        role: joi.string().valid("ADMIN","USER").disallow(""),
+        isVerified: joi.boolean(),
     })
+
     if (!req.body || typeof req.body !== 'object') {
         return next(createError(400, 'Invalid request body'));
     }
@@ -66,4 +68,4 @@ const validateUpdateUser = (req, _, res) => {
     }
     next()
 }
-export { validateRegisterUser, validateLoginUser, validateReqQuery };
+export { validateRegisterUser, validateLoginUser, validateReqQuery,validateUpdateUser };

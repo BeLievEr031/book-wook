@@ -19,7 +19,7 @@ const admin = asyncHandler(async (req, res, next) => {
     }
     const user = await UserModel.findOne({ $and: [{ email: isValidToken.email }, { accessToken }] })
     if (!user) {
-        return next(createError(401, "Unauthorized aa user."))
+        return next(createError(401, "Unauthorized user."))
     }
     if (user.role !== "ADMIN") {
         return next(createError(401, "Unauthorized user."))

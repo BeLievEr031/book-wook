@@ -2,7 +2,7 @@ import asyncHandler from "express-async-handler"
 import UserModel from "../models/UserModel.js"
 import createError from "http-errors"
 import ApiResponse from "../utils/ApiResponse.js"
-import { checkTokenExpiry, comparePassword, createTokens, generateVerificationToken, verifyRefreshToken } from "../utils/utils.js"
+import { checkTokenExpiry, comparePassword, createTokens, generateVerificationToken, toObjectId, verifyRefreshToken } from "../utils/utils.js"
 import { verificationTemplete } from "../constant/emailTemplate.js"
 import { sendEmailWithResend } from "../utils/email.utility.js"
 
@@ -134,7 +134,31 @@ const fetchUser = asyncHandler(async (req, res, next) => {
     res.status(200).json(new ApiResponse(true, "User fetched successfully.", users))
 })
 
-export { register, login, verifyAccount, refreshToken, fetchUser };
+const updateUser = asyncHandler(async (req, res, next) => {
+    const { id } = req.params;
+    const user = await UserModel.findByIdAndUpdate(id, {
+        ...req.body
+    }, { new: true, runValidators: true })
+    if (!user) {
+        return next(createError(404, "Invalid user!!"))
+    }
+    res.status(200).json(new ApiResponse(true, "User updated successfully.", user))
+})
 
+const deleteUser = asyncHandler(async (req, res, next) => {
+    const { id } = req.params;
+    if (!id) {
+        return next(422, "User id required.")
+    }
+    const user = await UserModel.findByIdAndDelete(id)
+    if (!user) {
+        return next(createError(404, "Invalid user!!"))
+    }
+
+    res.status(200).json(new ApiResponse(true, "User deleted successfully.", user))
+})
+
+
+export { register, login, verifyAccount, refreshToken, fetchUser, updateUser, deleteUser };
 
 // 9321590557 rupesh sir

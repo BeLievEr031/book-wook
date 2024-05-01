@@ -52,4 +52,20 @@ const checkTokenExpiry = (expirationTime) => {
         return false;
     }
 }
-export { comparePassword, createTokens, generateVerificationToken, verifyAccessToken, verifyRefreshToken, checkTokenExpiry }
+
+const toObjectId = async (stringID) => {
+    try {
+        if (!stringID) {
+            throw createError(400, "stringID required.")
+        }
+
+        console.log(stringID);
+        const objectId = await new mongoose.Types.ObjectId(stringID);
+        console.log(objectId);
+        return objectId;
+    } catch (error) {
+        throw createError(422, "Invalid ObjectId.")
+    }
+}
+
+export { comparePassword, createTokens, generateVerificationToken, verifyAccessToken, verifyRefreshToken, checkTokenExpiry, toObjectId }
