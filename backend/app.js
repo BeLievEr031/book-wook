@@ -6,6 +6,7 @@ import dbConnect from "./db/dbConnect.js";
 import errorHandler from "./middleware/ErrorHandler.js";
 import userRouter from "./routes/user.route.js";
 import bookRouter from "./routes/book.route.js";
+import genreRouter from "./routes/genre.route.js";
 const app = express();
 app.use(cors({
     origin: config.FRONTEND_ORIGINS
@@ -15,6 +16,7 @@ app.use(express.json({ limit: "16KB" }))
 app.use(express.urlencoded({ extended: true, limit: "16KB" }))
 app.use(cookieParser())
 
+// @Welcome Route
 app.use("/api/v1/welcome", (req, res) => {
     res.status(200).json({
         status: true,
@@ -26,6 +28,7 @@ app.use("/api/v1/welcome", (req, res) => {
 // All other Routes
 app.use("/api/v1/user", userRouter) // @User Route
 app.use("/api/v1/book", bookRouter) // @Book Route
+app.use("/api/v1/genre", genreRouter) // @Genre Route
 
 
 // Global error handler

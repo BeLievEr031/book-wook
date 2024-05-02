@@ -1,6 +1,8 @@
 import joi from "joi"
 import createError from "http-errors"
 
+
+// @User validators.
 const validateRegisterUser = (req, _, next) => {
     const validationSchema = joi.object({
         name: joi.string().required().trim().disallow(""),
@@ -69,6 +71,8 @@ const validateUpdateUser = (req, _, next) => {
     next()
 }
 
+
+// @Book validators.
 const validateAddBook = (req, _, next) => {
     const validationSchema = joi.object({
         genreid: joi.string().required().trim(),
@@ -147,8 +151,62 @@ const validateBookReqQuery = (req, _, next) => {
     next()
 }
 
+// @Genre Validators.
+const validateAddGenre = (req, _, next) => {
+    const validationSchema = joi.object({
+        name: joi.string().trim().required().disallow(""),
+        description: joi.string().trim().required().disallow(""),
+    })
+    if (!req.body || typeof req.body !== 'object') {
+        return next(createError(400, 'Invalid request body'));
+    }
+    const { error, value } = validationSchema.validate(req.body)
+    if (error) {
+        return next(createError(400, error.message))
+    }
+    next()
+}
+
+const validateUpdateGenre = (req, _, next) => {
+    const validationSchema = joi.object({
+        name: joi.string().trim().required().disallow(""),
+        description: joi.string().trim().required().disallow(""),
+    })
+    if (!req.body || typeof req.body !== 'object') {
+        return next(createError(400, 'Invalid request body'));
+    }
+    const { error, value } = validationSchema.validate(req.body)
+    if (error) {
+        return next(createError(400, error.message))
+    }
+    next()
+}
+
+const validateGenreReqQuery = (req, _, next) => {
+    const validationSchema = joi.object({
+        page: joi.number().integer().min(1).default(1).required(),
+        limit: joi.number().integer().min(1).max(100).default(10).required(),
+        sortBy: joi.string().valid('createdAt', 'updatedAt', "name").default('createdAt').required(),
+        sortOrder: joi.string().valid('asc', 'desc').default('asc').required()
+    });
+
+    if (!req.query || typeof req.query !== 'object') {
+        return next(createError(400, 'Invalid request query'));
+    }
+    const { error, value } = validationSchema.validate(req.query)
+    if (error) {
+        return next(createError(422, error.message))
+    }
+
+    req.query = value;
+    next()
+}
+
 // @Validators for user routes 🛣️
 export { validateRegisterUser, validateLoginUser, validateReqQuery, validateUpdateUser };
 
 // @Validators for Book routes 🛣️
 export { validateAddBook, validateUpdateBook, validateBookReqQuery };
+
+// @Validators for Genre routes 🛣️
+export { validateAddGenre, validateUpdateGenre, validateGenreReqQuery };
