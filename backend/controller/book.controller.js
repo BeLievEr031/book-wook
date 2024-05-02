@@ -38,4 +38,21 @@ const deleteBook = asyncHandler(async (req, res, next) => {
     res.status(200).json(new ApiResponse(true, "Book Deleted successfully.", book))
 })
 
-export { addBook, updateBook, deleteBook };
+const fetchBooks = asyncHandler(async (req, res, next) => {
+    const { page, limit, sortBy, sortOrder } = req.query;
+    const skip = (page - 1) * limit;
+    // Construct the aggregation pipeline
+    const pipeline = [
+        // Sorting stage
+        { $sort: { [sortBy]: sortOrder === 'asc' ? 1 : -1 } },
+        // Pagination stage
+        { $skip: skip },
+        { $limit: limit },
+        // { $project: { _id: 1, name: 1, author: 1, role: 1 } }
+    ];
+    // Execute the aggregation pipeline
+    const books = await BookModel.aggregate(pipeline);
+    res.status(200).json(new ApiResponse(true, "Book fetched successfully.", books))
+})
+
+export { addBook, updateBook, deleteBook, fetchBooks };

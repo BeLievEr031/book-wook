@@ -69,7 +69,6 @@ const validateUpdateUser = (req, _, next) => {
     next()
 }
 
-
 const validateAddBook = (req, _, next) => {
     const validationSchema = joi.object({
         genreid: joi.string().required().trim(),
@@ -127,4 +126,29 @@ const validateUpdateBook = (req, _, next) => {
     req.book = value;
     next()
 }
-export { validateRegisterUser, validateLoginUser, validateReqQuery, validateUpdateUser, validateAddBook, validateUpdateBook };
+
+const validateBookReqQuery = (req, _, next) => {
+    const validationSchema = joi.object({
+        page: joi.number().integer().min(1).default(1).required(),
+        limit: joi.number().integer().min(1).max(100).default(10).required(),
+        sortBy: joi.string().valid('createdAt', 'updatedAt', "title", "author", "rating", "price", "quantity").default('createdAt').required(),
+        sortOrder: joi.string().valid('asc', 'desc').default('asc').required()
+    });
+
+    if (!req.query || typeof req.query !== 'object') {
+        return next(createError(400, 'Invalid request query'));
+    }
+    const { error, value } = validationSchema.validate(req.query)
+    if (error) {
+        return next(createError(422, error.message))
+    }
+
+    req.query = value;
+    next()
+}
+
+// @Validators for user routes 🛣️
+export { validateRegisterUser, validateLoginUser, validateReqQuery, validateUpdateUser };
+
+// @Validators for Book routes 🛣️
+export { validateAddBook, validateUpdateBook, validateBookReqQuery };

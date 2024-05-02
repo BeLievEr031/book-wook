@@ -48,7 +48,8 @@ const auth = asyncHandler(async (req, res, next) => {
     if (!user) {
         return next(createError(401, "Unauthorized user."))
     }
-    if (user.role !== "ADMIN" || user.role !== "USER") {
+    
+    if (user.role !== "ADMIN" && user.role !== "USER") {
         return next(createError(401, "Unauthorized user."))
     }
 
@@ -58,4 +59,4 @@ const auth = asyncHandler(async (req, res, next) => {
 
 
 
-export { admin };
+export { admin,auth };
