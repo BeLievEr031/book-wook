@@ -1,0 +1,22 @@
+PORT = 5500
+FRONTEND_ORIGINS = ["http://localhost:5173"]
+DB_URI = mongodb://127.0.0.1:27017/book-wook
+NODE_ENV = development
+ACCESS_TOKEN_SECRET = i_am_a_access_token_secret
+REFRESH_TOKEN_SECRET = i_am_a_refresh_token_secret
+VERIFY_TOKEN_SECRET = i_am_a_verify_token_secret
+
+EMAIL_HOST = sandbox.smtp.mailtrap.io
+EMAIL_PORT = 2525
+EMAIL_SECURE = STARTTLS
+EMAIL_USER = 610e86702d0f9a
+# EMAIL_PASSWORD = 8A54C872FB77F1B199E543C858068A38C254
+EMAIL_PASSWORD = 
+
+RESEND_EMAIL = 
+RESEND_TOKEN = 
+
+# Cloudinary Secret
+CLOUDINARY_CLOUD_NAME = 
+CLOUDINARY_API_KEY = 
+CLOUDINARY_API_SECRET = 
