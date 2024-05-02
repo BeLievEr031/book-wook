@@ -86,7 +86,7 @@ const validateAddBook = (req, _, next) => {
         rating: joi.number().min(1).max(5).default(0),
         thumbnail: joi.string().default(''),
         photos: joi.array().items(joi.string()).default([]),
-        pdf: joi.string().default('').required(),
+        pdf: joi.string().default(''),
         quantity: joi.number().default(0),
         isActive: joi.boolean().default(false)
     });
