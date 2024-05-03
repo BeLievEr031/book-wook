@@ -202,6 +202,25 @@ const validateGenreReqQuery = (req, _, next) => {
     next()
 }
 
+
+const validateCartReqQuery = (req, _, next) => {
+    const validationSchema = joi.object({
+        type: joi.string().valid("delete", "update").required().disallow(""),
+        bookid: joi.string().required().disallow(""),
+        quantity: joi.number().integer().min(1).required().disallow("")
+    })
+
+    if (!req.query || typeof req.query !== 'object') {
+        return next(createError(400, 'Invalid request query'));
+    }
+    const { error, value } = validationSchema.validate(req.query)
+    if (error) {
+        return next(createError(422, error.message))
+    }
+    req.query = value;
+    next();
+}
+
 // @Validators for user routes 🛣️
 export { validateRegisterUser, validateLoginUser, validateReqQuery, validateUpdateUser };
 
@@ -210,3 +229,6 @@ export { validateAddBook, validateUpdateBook, validateBookReqQuery };
 
 // @Validators for Genre routes 🛣️
 export { validateAddGenre, validateUpdateGenre, validateGenreReqQuery };
+
+// @Validators for Cart routes 🛣️
+export { validateCartReqQuery };
