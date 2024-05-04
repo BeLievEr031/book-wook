@@ -191,7 +191,7 @@ const addToCart = asyncHandler(async (req, res, next) => {
 })
 
 const updateCart = asyncHandler(async (req, res, next) => {
-    const { type, bookid,quantity } = req.query;
+    const { type, bookid, quantity } = req.query;
     const { id } = req.params;
     if (!id) {
         return next(createError(422, "Invalid cart id."))
@@ -226,7 +226,7 @@ const updateCart = asyncHandler(async (req, res, next) => {
 
     } else if (type === "update") {
         const bookForUpdate = cart.items[idx];
-        const cartItem = await CartItemModel.findOne({_id:bookForUpdate._id})
+        const cartItem = await CartItemModel.findOne({ _id: bookForUpdate._id })
         if (cartItem.quantity > quantity) {
             const diff = cartItem.quantity - quantity;
             book.quantity += diff;
@@ -248,7 +248,48 @@ const updateCart = asyncHandler(async (req, res, next) => {
     res.status(200).json(new ApiResponse(true, `Cart Updated.`, cart))
 
 })
+
+const fetchCart = asyncHandler(async (req, res, next) => {
+    const { _id } = req.user;
+
+    const cart = await CartModel.findOne({ $and: [{ userid: _id }, { status: "Pending" }] }).populate({
+        path: 'items',
+        model: "CartItemModel",
+        select: "quantity",
+        populate: {
+            path: 'bookid',
+            model: 'BookModel',
+            select: "title author description price thumbnail",
+            options: { as: 'bookName' },
+            populate: {
+                path: "genreid",
+                model: "GenreModel",
+                select: "name"
+            }
+        }
+    });
+
+    let totalPrice = 0;
+    const sanitizedCartArr = cart.items.map((bookDetails) => {
+        const obj = {
+            quantity: bookDetails.quantity,
+            itemid: bookDetails._id,
+            bookid: bookDetails.bookid._id,
+            genre: bookDetails.bookid.genreid.name,
+            title: bookDetails.bookid.title,
+            author: bookDetails.bookid.author,
+            description: bookDetails.bookid.description,
+            thumbnail: bookDetails.bookid.thumbnail,
+            price: bookDetails.bookid.price,
+        }
+        totalPrice += (bookDetails.bookid.price * bookDetails.quantity);
+        return obj;
+    })
+
+    const sanitizedCart = { cartid: cart._id, items: sanitizedCartArr, totalPrice, totalItems: sanitizedCartArr.length }
+    res.status(200).json(new ApiResponse(true, "Cart fetched.", sanitizedCart))
+})
 // @Book management Controllers.
 export { addBook, updateBook, deleteBook, fetchBooks };
 // @Book Buying Controllers.
-export { addToCart, updateCart };
+export { addToCart, updateCart, fetchCart };
