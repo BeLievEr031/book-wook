@@ -250,12 +250,15 @@ const updateCart = asyncHandler(async (req, res, next) => {
 })
 
 const fetchCart = asyncHandler(async (req, res, next) => {
+    const { limit, page } = req.query;
     const { _id } = req.user;
 
     const cart = await CartModel.findOne({ $and: [{ userid: _id }, { status: "Pending" }] }).populate({
         path: 'items',
         model: "CartItemModel",
         select: "quantity",
+        limit: limit,
+        skip: (page - 1) * limit,
         populate: {
             path: 'bookid',
             model: 'BookModel',

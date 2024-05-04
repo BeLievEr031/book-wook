@@ -71,7 +71,6 @@ const validateUpdateUser = (req, _, next) => {
     next()
 }
 
-
 // @Book validators.
 const validateAddBook = (req, _, next) => {
     const validationSchema = joi.object({
@@ -202,7 +201,6 @@ const validateGenreReqQuery = (req, _, next) => {
     next()
 }
 
-
 const validateCartReqQuery = (req, _, next) => {
     const validationSchema = joi.object({
         type: joi.string().valid("delete", "update").required().disallow(""),
@@ -221,6 +219,25 @@ const validateCartReqQuery = (req, _, next) => {
     next();
 }
 
+const validateFetchCartReqQuery = (req, _, next) => {
+    const validationSchema = joi.object({
+        page: joi.number().integer().min(1).default(1).required(),
+        limit: joi.number().integer().min(1).max(100).default(10).required(),
+        // sortBy: joi.string().valid('createdAt', 'updatedAt', "name", "email").default('createdAt').required(),
+        // sortOrder: joi.string().valid('asc', 'desc').default('asc').required()
+    });
+
+    if (!req.query || typeof req.query !== 'object') {
+        return next(createError(400, 'Invalid request query'));
+    }
+    const { error, value } = validationSchema.validate(req.query)
+    if (error) {
+        return next(createError(422, error.message))
+    }
+
+    req.query = value;
+    next()
+}
 // @Validators for user routes 🛣️
 export { validateRegisterUser, validateLoginUser, validateReqQuery, validateUpdateUser };
 
@@ -231,4 +248,4 @@ export { validateAddBook, validateUpdateBook, validateBookReqQuery };
 export { validateAddGenre, validateUpdateGenre, validateGenreReqQuery };
 
 // @Validators for Cart routes 🛣️
-export { validateCartReqQuery };
+export { validateCartReqQuery,validateFetchCartReqQuery };
