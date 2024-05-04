@@ -135,7 +135,8 @@ const fetchBooks = asyncHandler(async (req, res, next) => {
     res.status(200).json(new ApiResponse(true, "Book fetched successfully.", resBook))
 })
 
-const addToCart = asyncHandler(async (req, res, next) => {
+// @Version1 Approach
+const addToCartV1 = asyncHandler(async (req, res, next) => {
     const { _id } = req.user;
     const { id } = req.params;
     if (!id) {
@@ -190,7 +191,7 @@ const addToCart = asyncHandler(async (req, res, next) => {
     return res.status(200).json(new ApiResponse(true, "Product added to cart.", { cart, newBookForCart }))
 })
 
-const updateCart = asyncHandler(async (req, res, next) => {
+const updateCartV1 = asyncHandler(async (req, res, next) => {
     const { type, bookid, quantity } = req.query;
     const { id } = req.params;
     if (!id) {
@@ -249,7 +250,7 @@ const updateCart = asyncHandler(async (req, res, next) => {
 
 })
 
-const fetchCart = asyncHandler(async (req, res, next) => {
+const fetchCartV1 = asyncHandler(async (req, res, next) => {
     const { limit, page } = req.query;
     const { _id } = req.user;
 
@@ -292,6 +293,97 @@ const fetchCart = asyncHandler(async (req, res, next) => {
     const sanitizedCart = { cartid: cart._id, items: sanitizedCartArr, totalPrice, totalItems: sanitizedCartArr.length }
     res.status(200).json(new ApiResponse(true, "Cart fetched.", sanitizedCart))
 })
+
+
+// @Version2 Approach
+const addToCart = asyncHandler(async (req, res, next) => {
+    const { _id } = req.user;
+    const { id } = req.params;
+    if (!id) {
+        return next(createError(422, "Book id required."));
+    }
+
+    const { quantity } = req.body;
+    if (!quantity) {
+        return next(createError(422, "Quantity of book required."))
+    }
+
+    const book = await BookModel.findById(id);
+
+    if (!book) {
+        return next(createError(404, "Invalid book."))
+    }
+
+    if (book.quantity < +quantity) {
+        return next(createError(404, "Product out of stock."))
+    }
+
+    const bookInCart = await CartItemModel.findOne({ $and: [{ userid: _id }, { bookid: id }, { status: "CART" }] })
+    if (bookInCart) {
+        return next(createError(409, "Book already available."))
+    }
+
+    const cartItem = {
+        userid: _id,
+        bookid: book._id,
+        quantity
+    }
+    const newBookForCart = await CartItemModel.create(cartItem);
+
+    book.quantity -= quantity
+    await book.save();
+    return res.status(200).json(new ApiResponse(true, "Product added to cart.", newBookForCart))
+})
+
+const updateCart = asyncHandler(async (req, res, next) => {
+    const { _id } = req.user;
+    const { id } = req.params;
+    if (!id) {
+        return next(createError(422, "Book id required!!"))
+    }
+    const { type, quantity } = req.query;
+    const cartItem = await CartItemModel.findOne({ $and: [{ userid: _id }, { bookid: id }, { status: "CART" }] })
+    if (!cartItem) {
+        return next(createError(404, "Invalid book."))
+    }
+
+    const book = await BookModel.findById(cartItem.bookid);
+    if (!book) {
+        return next(createError(404, "Invalid book."))
+    }
+
+    if (type === "delete") {
+        await cartItem.deleteOne();
+        book.quantity += cartItem.quantity;
+    } else if (type === "update") {
+        if (cartItem.quantity > quantity) {
+            const diff = cartItem.quantity - quantity;
+            book.quantity += diff;
+            cartItem.quantity = quantity;
+        } else {
+            const diff = quantity - cartItem.quantity;
+            book.quantity -= diff;
+            cartItem.quantity = quantity;
+        }
+        await cartItem.save();
+    }
+    await book.save();
+
+    res.status(200).json(new ApiResponse(true, `Cart Updated.`, cartItem))
+})
+
+const fetchCart = asyncHandler(async (req, res, next) => {
+    const { _id } = req.user;
+    const { page, limit } = req.query;
+    const cartItems = await CartItemModel.find({ userid: _id, status: "CART" }).populate({
+        path: "bookid",
+        model: "BookModel",
+        select: "title description thumbnail price rating author"
+    }).skip((page - 1) * limit).limit(limit);
+
+    res.status(200).json(new ApiResponse(true, "Books fetched.", cartItems))
+})
+
 // @Book management Controllers.
 export { addBook, updateBook, deleteBook, fetchBooks };
 // @Book Buying Controllers.

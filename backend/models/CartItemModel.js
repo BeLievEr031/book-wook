@@ -12,6 +12,11 @@ const cartItemSchema = new mongoose.Schema({
         ref: 'BookModel',
         required: true
     },
+    status: {
+        type: String,
+        enum: ['CART', 'ORDER',"CANCLE"],
+        default: 'CART'
+    },
     quantity: {
         type: Number,
         required: true,

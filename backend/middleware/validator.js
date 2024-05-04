@@ -204,7 +204,7 @@ const validateGenreReqQuery = (req, _, next) => {
 const validateCartReqQuery = (req, _, next) => {
     const validationSchema = joi.object({
         type: joi.string().valid("delete", "update").required().disallow(""),
-        bookid: joi.string().required().disallow(""),
+        // bookid: joi.string().required().disallow(""),
         quantity: joi.number().integer().min(1).required().disallow("")
     })
 
@@ -238,6 +238,14 @@ const validateFetchCartReqQuery = (req, _, next) => {
     req.query = value;
     next()
 }
+
+const validateOrder = (req,_,next) =>{
+    const validationSchema = joi.object({
+        cartid:joi.string().required().disallow(""),
+        addressid:joi.string().required().disallow("")
+    })
+}
+
 // @Validators for user routes 🛣️
 export { validateRegisterUser, validateLoginUser, validateReqQuery, validateUpdateUser };
 
