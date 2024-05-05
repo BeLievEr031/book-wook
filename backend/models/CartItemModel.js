@@ -14,7 +14,7 @@ const cartItemSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['CART', 'ORDER',"CANCLE"],
+        enum: ['CART', 'ORDER','CANCLE'],
         default: 'CART'
     },
     quantity: {

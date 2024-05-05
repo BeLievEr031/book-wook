@@ -107,7 +107,6 @@ const validateUpdateAddress = (req, _, next) => {
     next();
 }
 
-
 // @Book validators.
 const validateAddBook = (req, _, next) => {
     const validationSchema = joi.object({
@@ -276,11 +275,28 @@ const validateFetchCartReqQuery = (req, _, next) => {
     next()
 }
 
-const validateOrder = (req, _, next) => {
+
+const validateFetchOrderQuery = (req, _, next) => {
     const validationSchema = joi.object({
-        cartid: joi.string().required().disallow(""),
-        addressid: joi.string().required().disallow("")
+        type: joi.string().valid("all", "single").trim().required().disallow(""),
+        id: joi.string().trim().default(""),
+        page: joi.number().default(1),
+        limit: joi.number().default(10),
     })
+
+    const { error, value } = validationSchema.validate(req.query);
+    if (error) {
+        return next(createError(422, error.message));
+    }
+
+    if (value.type === "single") {
+        if (!value.id) {
+            return next(createError(400, "Order id required."));
+        }
+    }
+
+    req.query = value;
+    next();
 }
 
 
@@ -299,3 +315,6 @@ export { validateAddGenre, validateUpdateGenre, validateGenreReqQuery };
 
 // @Validators for Cart routes 🛣️
 export { validateCartReqQuery, validateFetchCartReqQuery };
+
+// @Validators for Order routes 🛣️
+export { validateFetchOrderQuery};
