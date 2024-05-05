@@ -6,7 +6,6 @@ import createError from "http-errors";
 const addAddress = asyncHandler(async (req, res, next) => {
     const { _id } = req.user;
     const user = await UserModel.findById(_id)
-    console.log(user);
     if(user.addresses === 0){
         return next(createError(422, "You can only add 3 address!"))
     }
