@@ -71,6 +71,43 @@ const validateUpdateUser = (req, _, next) => {
     next()
 }
 
+// @Address Validators
+const validateAddAddress = (req, _, next) => {
+    const validationSchema = joi.object({
+        street: joi.string().trim().required().messages({ 'any.required': 'Street is required.' }),
+        city: joi.string().trim().required().messages({ 'any.required': 'City is required.' }),
+        state: joi.string().trim().required().messages({ 'any.required': 'State is required.' }),
+        postalCode: joi.string().trim().required().messages({ 'any.required': 'Postal code is required.' }),
+        country: joi.string().trim().required().messages({ 'any.required': 'Country is required.' }),
+    });
+
+    const { error, value } = validationSchema.validate(req.body)
+    if (error) {
+        return next(createError(422, error.message));
+    }
+
+    req.body = value;
+    next();
+}
+const validateUpdateAddress = (req, _, next) => {
+    const validationSchema = joi.object({
+        street: joi.string().trim().required().messages({ 'any.required': 'Street is required.' }),
+        city: joi.string().trim().required().messages({ 'any.required': 'City is required.' }),
+        state: joi.string().trim().required().messages({ 'any.required': 'State is required.' }),
+        postalCode: joi.string().trim().required().messages({ 'any.required': 'Postal code is required.' }),
+        country: joi.string().trim().required().messages({ 'any.required': 'Country is required.' }),
+    });
+
+    const { error, value } = validationSchema.validate(req.body)
+    if (error) {
+        return next(createError(422, error.message));
+    }
+
+    req.body = value;
+    next();
+}
+
+
 // @Book validators.
 const validateAddBook = (req, _, next) => {
     const validationSchema = joi.object({
@@ -239,15 +276,20 @@ const validateFetchCartReqQuery = (req, _, next) => {
     next()
 }
 
-const validateOrder = (req,_,next) =>{
+const validateOrder = (req, _, next) => {
     const validationSchema = joi.object({
-        cartid:joi.string().required().disallow(""),
-        addressid:joi.string().required().disallow("")
+        cartid: joi.string().required().disallow(""),
+        addressid: joi.string().required().disallow("")
     })
 }
 
+
+
 // @Validators for user routes 🛣️
 export { validateRegisterUser, validateLoginUser, validateReqQuery, validateUpdateUser };
+
+// @Validators for address routes 🛣️
+export { validateAddAddress, validateUpdateAddress }
 
 // @Validators for Book routes 🛣️
 export { validateAddBook, validateUpdateBook, validateBookReqQuery };
@@ -256,4 +298,4 @@ export { validateAddBook, validateUpdateBook, validateBookReqQuery };
 export { validateAddGenre, validateUpdateGenre, validateGenreReqQuery };
 
 // @Validators for Cart routes 🛣️
-export { validateCartReqQuery,validateFetchCartReqQuery };
+export { validateCartReqQuery, validateFetchCartReqQuery };
