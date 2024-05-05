@@ -123,4 +123,24 @@ const fetchOrder = asyncHandler(async (req, res, next) => {
     res.status(200).json(new ApiResponse(true, "Order fetched successfully.", order))
 })
 
-export { placeOrder, cancleOrder, fetchOrder };
+const updateOrder = asyncHandler(async (req, res, next) => {
+    const { id } = req.params;
+    const { status } = req.body;
+    const statusValues = ['Pending', 'Processing', 'Shipped', 'Delivered', "Cancle"];
+    if (!status || !statusValues.includes(status)) {
+        return next(createError(422, "Invalid status."));
+    }
+
+    if (!id) {
+        return next(createError(422, "Order id required for update."))
+    }
+
+    const order = await OrderModel.findByIdAndUpdate(id, { ...req.body }, { new: true, runValidators: true });
+    if (!order) {
+        return next(createError(404, "Invalid order."))
+    }
+    // TODO: Socket.io integration
+    res.status(200).json(new ApiResponse(true, "Order updated successfully.", order))
+
+})
+export { placeOrder, cancleOrder, fetchOrder, updateOrder };
