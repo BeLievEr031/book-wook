@@ -2,7 +2,7 @@ import asyncHandler from "express-async-handler";
 import BookModel from "../models/BookModel.js";
 import createError from "http-errors";
 import ApiResponse from "../utils/ApiResponse.js";
-import { convertIntoMB, fileUploader } from "../utils/utils.js";
+import { convertIntoMB, deleteFile, fileUploader } from "../utils/utils.js";
 import GenreModel from "../models/GenreModel.js";
 import CartModel from "../models/CartModel.js";
 import CartItemModel from "../models/CartItemModel.js";
@@ -50,20 +50,20 @@ const addBook = asyncHandler(async (req, res, next) => {
             }
         }
 
-        // TODO: Another way to upload the Large PDF 
-        // uploading book pdf if provided.
-        if (req.files && req.files.pdf) {
-            const file = req.files.pdf
-            const MB = convertIntoMB(file.size)
-            if (MB > 20) {
-                return next(createError(413, 'Thumbnail File size is too large.'));
-            }
-            const pdf = await fileUploader([file]);
-            req.book.pdf = pdf[0];
-        }
-
         const photosSrc = await fileUploader(files);
         req.book.photos = photosSrc;
+    }
+
+    // TODO: Another way to upload the Large PDF 
+    // uploading book pdf if provided.
+    if (req.files && req.files.pdf) {
+        const file = req.files.pdf
+        const MB = convertIntoMB(file.size)
+        if (MB > 20) {
+            return next(createError(413, 'PDF File size is too large.'));
+        }
+        const pdf = await fileUploader([file]);
+        req.book.pdf = pdf[0];
     }
 
     const book = await BookModel.create({ ...req.book, userid: req.user._id })
@@ -73,13 +73,99 @@ const addBook = asyncHandler(async (req, res, next) => {
 
 const updateBook = asyncHandler(async (req, res, next) => {
     const { id } = req.params;
+    const { title, author, description, price, isForSale, isForRent, rentalPrice, rating, genreid, quantity, isActive } = req.book;
+
     if (!id) {
         return next(createError(400, "Book id is required."))
     }
-    const book = await BookModel.findByIdAndUpdate(id, { ...req.book }, { new: true, runValidators: true })
+
+    const book = await BookModel.findById(id)
+    // console.log(book.photos);
     if (!book) {
         return next(createError(409, "Invalid book."))
     }
+
+    const previousPhotos = book.photos.filter((photo) => {
+        if (req.book.photos.includes(photo)) {
+            return photo;
+        }
+    })
+
+    // Uploading a thumbnail if provided by user.
+    if (req.files && req.files.thumbnail) {
+        const file = req.files.thumbnail
+        const MB = convertIntoMB(file.size)
+        if (MB > 2) {
+            return next(createError(413, 'Thumbnail File size is too large.'));
+        }
+        const fileSrcArr = ["book-wook/" + req.book.thumbnail.split("book-wook")[1].split(".")[0]]
+        const thumbnailSrc = await fileUploader([file]);
+        req.book.thumbnail = thumbnailSrc[0];
+        await deleteFile(fileSrcArr)
+    }
+
+    // Uploading book images if provided by user.
+    if (req.files && req.files.length !== 0 && req.files.images) {
+        const files = req.files.images.length ? req.files.images : [req.files.images];
+        if (files.length && (previousPhotos.length + files.length) > 4) {
+            return next(createError(413, "Too much book images."))
+        }
+
+        if (!files.length && convertIntoMB(files.size) > 2) {
+            return next(createError(413, 'Photo File size is too large.'));
+        } else {
+            for (let i = 0; i < files.length; i++) {
+                if (convertIntoMB(files[i].size) > 2) {
+                    return next(createError(413, `${files[i].name} Photo size is too large.`));
+                }
+            }
+        }
+
+        const photosSrc = await fileUploader(files);
+
+        // TODO::remove previous 
+        const photosToDelete = [];
+        for (let i = 0; i < book.photos.length; i++) {
+            const photo = book.photos[i]
+            if (!req.book.photos.includes(photo)) {
+                photosToDelete.push("book-wook" + photo.split("book-wook")[1].split(".")[0]);
+            }
+        }
+
+        req.book.photos = [...previousPhotos, ...photosSrc];
+        photosToDelete.length !== 0 && await deleteFile(photosToDelete)
+    }
+
+    // TODO: Another way to upload the Large PDF 
+    // uploading book pdf if provided.
+    if (req.files && req.files.pdf) {
+        const file = req.files.pdf
+        const MB = convertIntoMB(file.size)
+        if (MB > 20) {
+            return next(createError(413, 'PDF File size is too large.'));
+        }
+        const fileSrcArr = ["book-wook/" + req.book.pdf.split("book-wook")[1].split(".")[0]]
+        const pdf = await fileUploader([file]);
+        req.book.pdf = pdf[0];
+        await deleteFile(fileSrcArr)
+    }
+
+    book.title = title;
+    book.author = author;
+    book.description = description;
+    book.price = price;
+    book.isForSale = isForSale;
+    book.isForRent = isForRent;
+    book.rentalPrice = rentalPrice;
+    book.rating = rating;
+    book.quantity = quantity;
+    book.genreid = genreid;
+    book.isActive = isActive;
+    book.thumbnail = req.book.thumbnail;
+    book.photos = req.book.photos;
+    book.pdf = req.book.pdf;
+
+    await book.save();
 
     res.status(200).json(new ApiResponse(true, "Book updated successfully.", book))
 })
@@ -293,7 +379,6 @@ const fetchCartV1 = asyncHandler(async (req, res, next) => {
     const sanitizedCart = { cartid: cart._id, items: sanitizedCartArr, totalPrice, totalItems: sanitizedCartArr.length }
     res.status(200).json(new ApiResponse(true, "Cart fetched.", sanitizedCart))
 })
-
 
 // @Version2 Approach
 const addToCart = asyncHandler(async (req, res, next) => {

@@ -93,7 +93,6 @@ const fileUploader = async (file) => {
                             if (err) {
                                 throw createError(500, err.message)
                             }
-
                             console.log("File deleted.");
                         })
                         resolve();
@@ -109,15 +108,27 @@ const fileUploader = async (file) => {
     // Iterate over each file and upload it
     for (let i = 0; i < file.length; i++) {
         try {
-
             await uploadFile(file[i]);
         } catch (error) {
             console.error('File upload error:', error);
             throw createError(500, 'File upload failed');
         }
     }
-
     return imageUrl;
+}
+
+const deleteFile = async (fileSrcArr) => {
+    // ['book-wook/okb7kexy4vmfew2ytvim']
+    console.log(fileSrcArr);
+    try {
+        await cloudinary.api
+            .delete_resources(fileSrcArr,
+                { type: 'upload', resource_type: 'image' })
+        console.log("File deleted.");
+    }
+    catch (error) {
+        throw createError(500, error.message)
+    }
 }
 
 const convertIntoMB = (bytes) => {
@@ -127,4 +138,4 @@ const convertIntoMB = (bytes) => {
 
 export { comparePassword, createTokens, generateVerificationToken, verifyAccessToken, verifyRefreshToken, checkTokenExpiry, toObjectId }
 
-export { fileUploader, convertIntoMB };
+export { fileUploader, deleteFile, convertIntoMB };
