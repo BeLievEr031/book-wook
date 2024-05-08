@@ -138,6 +138,7 @@ const validateAddBook = (req, _, next) => {
 }
 
 const validateUpdateBook = (req, _, next) => {
+    req.body.photos = JSON.parse(req.body.photos)
     const validationSchema = joi.object({
         genreid: joi.string().required().trim(),
         title: joi.string().required().trim(),
