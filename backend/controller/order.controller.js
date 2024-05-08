@@ -2,15 +2,25 @@ import asyncHandler from "express-async-handler";
 import CartItemModel from "../models/CartItemModel.js"
 import BookModel from "../models/BookModel.js"
 import OrderModel from "../models/OrderModel.js"
+import AddressModel from "../models/AddressModel.js"
 import ApiResponse from "../utils/ApiResponse.js"
 import createError from "http-errors";
 
 const placeOrder = asyncHandler(async (req, res, next) => {
     const { _id } = req.user;
-    const { cartItem } = req.body;
+    const { addressid, cartItem } = req.body;
+
+    if (!addressid) {
+        return next(createError(422, "Address required."))
+    }
 
     if (!cartItem && typeof cartItem !== "object" && cartItem.length === 0) {
         return next(createError(422, "Cartitem required."))
+    }
+
+    const address = await AddressModel.findOne({ _id:addressid, userid: _id })
+    if (!address) {
+        return next(createError(422, "Invalid address."))
     }
 
     // Check if the cart items are valid
@@ -31,16 +41,20 @@ const placeOrder = asyncHandler(async (req, res, next) => {
             book.quantity = book.quantity - item.quantity;
             item.status = "ORDER";
             orderItems.push(item._id);
-            totalPrice += item.quantity * book.price; // Accumulate totalPrice
+            totalPrice += (item.quantity * book.price); // Accumulate totalPrice
             await book.save(); // Uncomment if you want to save changes to the book
             await item.save();
         }
     }));
 
+    if (orderItems.length > 100) {
+        return next(createError(422, "You can only order 100 items at a time."))
+    }
 
     const newOrder = {
         userid: _id,
         products: orderItems,
+        addressid,
         totalPrice
     }
 
