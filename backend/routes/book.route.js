@@ -5,10 +5,11 @@ import { addBook, addToCart, deleteBook, fetchBooks, fetchCart, updateBook, upda
 
 const bookRouter = express.Router();
 
+// @Admin route
 bookRouter.route("/").post(validateAddBook, admin, addBook)
 bookRouter.route("/:id").put(validateUpdateBook, admin, updateBook)
 bookRouter.route("/:id").delete(admin, deleteBook)
-bookRouter.route("/").get(validateBookReqQuery, auth, fetchBooks)
+bookRouter.route("/").get(validateBookReqQuery,admin, fetchBooks)
 
 
 // @Routes for buying.

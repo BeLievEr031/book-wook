@@ -186,16 +186,6 @@ const deleteBook = asyncHandler(async (req, res, next) => {
 const fetchBooks = asyncHandler(async (req, res, next) => {
     const { page, limit, sortBy, sortOrder } = req.query;
     const skip = (page - 1) * limit;
-
-    let booksInCart = await CartModel.findOne({ $and: [{ userid: req.user._id }, { status: "Pending" }] }).populate({
-        path: "items",
-        select: "bookid" // Include only the bookid and quantity fields
-    }).select("-userid -createdAt -updatedAt -__v -status")
-
-    booksInCart.items = booksInCart.items.map((items) => {
-        return items.bookid.toString()
-    })
-
     // Construct the aggregation pipeline
     const pipeline = [
         // Sorting stage
@@ -203,23 +193,12 @@ const fetchBooks = asyncHandler(async (req, res, next) => {
         // Pagination stage
         { $skip: skip },
         { $limit: limit },
-        {
-            $addFields: {
-                isCart: false // Add isCart field with default value false
-            }
-        }
     ];
 
     const books = await BookModel.aggregate(pipeline);
-    const resBook = books.map(book => {
-        if (booksInCart.items.includes(book._id.toString())) {
-            book.isCart = true;
-        }
-        return book;
-    });
-
-    res.status(200).json(new ApiResponse(true, "Book fetched successfully.", resBook))
+    res.status(200).json(new ApiResponse(true, "Book fetched successfully.", books))
 })
+
 
 // @Version1 Approach
 const addToCartV1 = asyncHandler(async (req, res, next) => {
