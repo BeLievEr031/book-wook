@@ -3,6 +3,7 @@ import DashboardLayout from "@/Layouts/DashboardLayout";
 import Dashboard from "@/pages/Dashboard/Dashboard";
 import AddBook from "@/pages/Dashboard/page/AddBook";
 import DisplayBook from "@/pages/Dashboard/page/DisplayBook";
+import Genre from "@/pages/Genre/Genre";
 import Home from "@/pages/Home/Home";
 import { Login } from "@/pages/Login/Login";
 import Order from "@/pages/Order/Order";
@@ -34,6 +35,10 @@ const router = createBrowserRouter([
                         element: <AddBook />
                     }
                 ]
+            },
+            {
+                path:"genre",
+                element:<Genre/>
             },
             {
                 path: "order",
