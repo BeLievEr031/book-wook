@@ -1,5 +1,6 @@
 import AuthLayout from "@/Layouts/AuthLayout";
 import DashboardLayout from "@/Layouts/DashboardLayout";
+import Book from "@/pages/Books/Book";
 import Dashboard from "@/pages/Dashboard/Dashboard";
 import AddBook from "@/pages/Dashboard/page/AddBook";
 import DisplayBook from "@/pages/Dashboard/page/DisplayBook";
@@ -43,6 +44,10 @@ const router = createBrowserRouter([
             {
                 path: "order",
                 element: <Order />
+            },
+            {
+                path: "books",
+                element: <Book />
             },
         ]
     },

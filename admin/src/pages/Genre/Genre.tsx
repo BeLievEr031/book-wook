@@ -136,7 +136,8 @@ function Genre() {
                     </DialogContent>
                 </Dialog>
             </div>
-            <div>
+            <div className="flex justify-center">
+                <div className="w-10/12">
                 <Table>
                     <TableHeader>
                         <TableRow>
@@ -194,6 +195,8 @@ function Genre() {
                     </TableBody>
                 </Table>
             </div>
+            </div>
+
         </main>
     )
 }

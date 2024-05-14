@@ -87,13 +87,16 @@ export function DashboardLayout() {
                                     6
                                 </Badge>
                             </NavLink>
-                            <Link
-                                to="#"
-                                className="flex items-center gap-3 rounded-lg bg-muted px-3 py-2 text-primary transition-all hover:text-primary"
+                            <NavLink
+                                to="/books"
+                                className={({ isActive, isPending }) => {
+                                    return cn(`flex items-center gap-3 rounded-lg px-3 py-2  transition-all hover:text-primary ${isPending ? "text-muted-foreground hover:bg-slate-200/50 " : isActive ? "bg-blue-600 text-white font-bold" : ""}`)
+                                }
+                                }
                             >
                                 <Package className="h-4 w-4" />
-                                Products{" "}
-                            </Link>
+                                Books
+                            </NavLink>
                             <Link
                                 to="#"
                                 className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
