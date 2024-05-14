@@ -1,8 +1,9 @@
-import { NavLink,Outlet } from 'react-router-dom'
+import { NavLink, Outlet } from 'react-router-dom'
 import { Link } from "react-router-dom"
 import {
     Bell,
     CircleUser,
+    Dna,
     Home,
     LineChart,
     Menu,
@@ -36,7 +37,7 @@ import { cn } from '@/lib/utils'
 import { Toaster } from "@/components/ui/toaster"
 
 export function DashboardLayout() {
-    
+
     return (
         <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
             <div className="hidden border-r bg-muted/40 md:block">
@@ -56,7 +57,7 @@ export function DashboardLayout() {
                             <NavLink
                                 to="/dashboard"
                                 className={({ isActive, isPending }) => {
-                                    return cn(`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary ${isPending ? "text-muted-foreground " : isActive ? "bg-blue-600 text-white font-bold" : ""}`)
+                                    return cn(`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary ${isPending ? "text-muted-foreground hover:bg-slate-200/50 " : isActive ? "bg-blue-600 text-white font-bold" : ""}`)
                                 }
                                 }
                             >
@@ -64,9 +65,19 @@ export function DashboardLayout() {
                                 Dashboard
                             </NavLink>
                             <NavLink
+                                to="/genre"
+                                className={({ isActive, isPending }) => {
+                                    return cn(`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary ${isPending ? "text-muted-foreground hover:bg-slate-200/50" : isActive ? "bg-blue-600 text-white font-bold" : ""}`)
+                                }
+                                }
+                            >
+                                <Dna className="h-4 w-4" />
+                                Genre
+                            </NavLink>
+                            <NavLink
                                 to="/order"
                                 className={({ isActive, isPending }) => {
-                                    return cn(`flex items-center gap-3 rounded-lg px-3 py-2  transition-all hover:text-primary ${isPending ? "text-muted-foreground" : isActive ? "bg-blue-600 text-white font-bold " : ""}`)
+                                    return cn(`flex items-center gap-3 rounded-lg px-3 py-2  transition-all hover:text-primary ${isPending ? "text-muted-foreground hover:bg-slate-200/50 " : isActive ? "bg-blue-600 text-white font-bold" : ""}`)
                                 }
                                 }
                             >
@@ -139,6 +150,21 @@ export function DashboardLayout() {
                                     <Package2 className="h-6 w-6" />
                                     <span className="sr-only">Acme Inc</span>
                                 </Link>
+                                <Link
+                                    to="/dashboard"
+                                    className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
+                                >
+                                    <Home className="h-5 w-5" />
+                                    Dashboard
+                                </Link>
+                                <Link
+                                    to="/genre"
+                                    className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
+                                >
+                                    <Home className="h-5 w-5" />
+                                    Genre
+                                </Link>
+
                                 <Link
                                     to="#"
                                     className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
@@ -225,9 +251,9 @@ export function DashboardLayout() {
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </header>
-                <Outlet/>
+                <Outlet />
             </div>
-            <Toaster/>
+            <Toaster />
         </div>
     )
 }
