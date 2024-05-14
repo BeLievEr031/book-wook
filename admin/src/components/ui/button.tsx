@@ -18,6 +18,9 @@ const buttonVariants = cva(
           "bg-slate-100 text-slate-900 hover:bg-slate-100/80 dark:bg-slate-800 dark:text-slate-50 dark:hover:bg-slate-800/80",
         ghost: "hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-slate-50",
         link: "text-slate-900 underline-offset-4 hover:underline dark:text-slate-50",
+        bookshelfEntry:"bg-blue-600 text-white hover:bg-blue-600/80 dark:bg-blue-800 dark:text-white dark:hover:bg-blue-800/80",
+        threeD:'mt-5 text-center button w-40 h-16 bg-blue-500 rounded-lg cursor-pointer select-none active:translate-y-2  active:[box-shadow:0_0px_0_0_#1b6ff8,0_0px_0_0_#1b70f841] active:border-b-[0px] transition-all duration-150 [box-shadow:0_10px_0_0_#1b6ff8,0_15px_0_0_#1b70f841]',
+        save:"text-center button cursor-pointer bg-green-700 text-white font-bold"
       },
       size: {
         default: "h-10 px-4 py-2",
