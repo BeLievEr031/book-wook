@@ -3,6 +3,7 @@ import AuthorRow from './_components/AuthorRow'
 import GenreRow from './_components/GenreRow'
 import TrendingRow from './_components/TrendingRow'
 import TopDealsRow from './_components/TopDealsRow'
+import Footer from './_components/Footer'
 
 function Home() {
     return (
@@ -12,6 +13,7 @@ function Home() {
             <AuthorRow />
             <TrendingRow />
             <TopDealsRow/>
+            <Footer/>
         </main>
     )
 }
